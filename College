@@ -1,0 +1,148 @@
+1. List all the student details studying in fourth semester ‘C ’section.
+select s.*, ss.sem, ss.sec
+from student s, semsec ss, class c
+where s.USN = C.USN and ss.SSID = C.SSID
+and ss.sem = 4 and ss.sec = 'C';
+
+
+/////////////////////////////////////////
+
+
+2. Compute the total number of male and female students in each semester and in each section.
+select ss.sem, ss.sec, s.gender, count(s.gender) as count
+from student s, semsec ss, class c
+where s.USN = C.USN and ss.SSID = C.SSID
+group by ss.sem, ss.sec, s.gender
+order by sem;
+
+///////////////////////////////////////////
+
+
+3. Create a view of Test1 marks of student USN ‘1DA15CS101’ in all subjects.
+create view stu_cie1_marks as
+select CIE1, subcode
+from ciemarks
+where USN = '1DA15CS101';
+Select * from stu_cie1_marks;
+
+
+//////////////////////////////////////////
+
+
+4. Calculate the FinalCIE (average of best two test marks) and update the corresponding table for all students. 
+update ciemarks
+set FinalCIE = ((CIE1 + CIE2 + CIE3) - LEAST(CIE1, CIE2, CIE3))/2;
+select * from ciemarks;
+
+
+////////////////////////////////////////////
+
+
+5. Categorize students based on the following criterion: 
+ If FinalCIE = 17 to 20 then CAT = ‘Outstanding’ 
+ If FinalCIE< 12 then CAT = ‘Weak’ 
+ If FinalCIE = 12 to 16 then CAT = ‘Average’ 
+Give these details only for 8th semester A, B, and C section students.
+select s.*,
+(case
+when m.FinalCIE between 17 and 20 then 'Outstanding'
+when m.FinalCIE between 12 and 16 then 'Average'
+else 'weak'
+end) as CAT
+from student s, semsec ss, ciemarks m, subject sub
+where s.USN = m.USN and ss.SSID = m.SSID and
+sub.subcode = m.subcode and sub.sem = 8;
+
+
+//////////////////////////////////////////////////
+
+
+create table student(
+USN varchar(10),
+sname varchar(50),
+address varchar(40),
+phone number(10),
+gender char,
+primary key(USN)
+);
+create table semsec(
+SSID varchar(5),
+sem number(1),
+sec char,
+primary key(SSID)
+);
+create table class(
+USN varchar(10),
+SSID varchar(5),
+primary key(USN, SSID),
+foreign key (USN) references student(USN),
+foreign key (SSID) references semsec(SSID)
+);
+create table subject(
+subcode varchar(6),
+title varchar(15),
+sem number(1),
+credits number(1),
+primary key(subcode)
+);
+create table ciemarks(
+USN varchar(10),
+subcode varchar(6),
+SSID varchar(5),
+CIE1 number(2),
+CIE2 number(2),
+CIE3 number(2),
+FinalCIE number(2),
+primary key(USN, subcode, SSID),
+foreign key(USN) references student(USN),
+foreign key(subcode) references subject(subcode),
+foreign key(SSID) references semsec(SSID)
+);
+INSERT INTO student VALUES 
+('1DA15CS001','AJAY','TUMKUR', 9845091341,'M');
+INSERT INTO student VALUES 
+('1DA15CS091','CHITRA','DAVANGERE',7696772121,'F');
+INSERT INTO student VALUES 
+('1DA15CS101','JEEVA','BELLARY', 9944850121,'M');
+INSERT INTO student VALUES 
+('1DA19CS045','AKASH','BENGALURU',9900211201,'M');
+INSERT INTO student VALUES 
+('1DA19CS088','BHASKAR','BENGALURU',9923211099,'M');
+INSERT INTO student VALUES 
+('1DA19CS122','ASMI','BENGALURU', 7894737377,'F');
+INSERT INTO student VALUES 
+('1DA19CS181','SANTOSH','MANGALURU',8812332201,'M');
+SELECT * FROM student;
+INSERT INTO semsec VALUES ('CSE8A', 8,'A');
+INSERT INTO semsec VALUES ('CSE8B', 8,'B');
+INSERT INTO semsec VALUES ('CSE8C', 8,'C');
+INSERT INTO semsec VALUES ('CSE4A', 4,'A');
+INSERT INTO semsec VALUES ('CSE4B', 4,'B');
+INSERT INTO semsec VALUES ('CSE4C', 4,'C');
+SELECT * FROM semsec;
+INSERT INTO class VALUES ('1DA15CS001','CSE8A');
+INSERT INTO class VALUES ('1DA15CS091','CSE8B');
+INSERT INTO class VALUES ('1DA15CS101','CSE8C');
+INSERT INTO class VALUES ('1DA19CS045','CSE4A');
+INSERT INTO class VALUES ('1DA19CS088','CSE4B');
+INSERT INTO class VALUES ('1DA19CS122','CSE4C');
+INSERT INTO class VALUES ('1DA19CS181','CSE4C');
+SELECT * FROM class;
+INSERT INTO subject VALUES ('15CS81', 'ACA', 8, 4);
+INSERT INTO subject VALUES ('15CS82','SSM', 8, 4);
+INSERT INTO subject VALUES ('15CS83','CC', 8, 4);
+INSERT INTO subject VALUES ('15CS84','NM', 8, 3);
+INSERT INTO subject VALUES ('15CS41','M4', 4, 4);
+INSERT INTO subject VALUES ('15CS42','SE', 4, 4);
+INSERT INTO subject VALUES ('15CS43','MPMC', 4, 4);
+INSERT INTO subject VALUES ('15CS44','OOOPS', 4, 3);
+SELECT * FROM subject;
+INSERT INTO ciemarks (USN, subcode, SSID, CIE1, CIE2, CIE3) VALUES
+('1DA15CS101','15CS81','CSE8C', 15, 16, 18);
+INSERT INTO ciemarks (USN, subcode, SSID, CIE1, CIE2, CIE3) VALUES
+('1DA15CS101','15CS82','CSE8C', 12, 19, 14);
+INSERT INTO ciemarks (USN, subcode, SSID, CIE1, CIE2, CIE3) VALUES
+('1DA15CS101','15CS83','CSE8C', 19, 15, 20);
+INSERT INTO ciemarks (USN, subcode, SSID, CIE1, CIE2, CIE3) VALUES
+('1DA15CS101','15CS84','CSE8C', 20, 16, 19);
+SELECT * FROM ciemarks;
